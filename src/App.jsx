@@ -1,25 +1,17 @@
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Projects from './components/Projects';
-import About from './components/About';
-import Contact from './components/Contact';
-import Chatbot from './components/Chatbot';
-import Footer from './components/Footer';
+import Navbar from './components/Navbar.jsx';
+import Hero from './components/Hero.jsx';
+import Skills from './components/Skills.jsx';
+import Footer from './components/Footer.jsx';
 
-function App() {
+export default function App() {
   return (
-    <div className="scroll-smooth bg-[#F8FAFC] text-[#1E293B]">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#1E293B]">
       <Navbar />
       <main>
         <Hero />
-        <Projects />
-        <About />
-        <Contact />
+        <Skills />
       </main>
       <Footer />
-      <Chatbot />
     </div>
   );
 }
-
-export default App;
