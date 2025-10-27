@@ -1,10 +1,10 @@
-import { useMemo, useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 
 const SKILL_IDEAS = [
   {
     skill: 'JavaScript',
-    color: 'bg-yellow-100 text-yellow-800 ring-yellow-200',
+    color: 'ring-yellow-300/50',
+    badge: 'bg-yellow-100 text-yellow-800',
     ideas: [
       'To‑Do app with drag-and-drop and localStorage persistence',
       'Weather dashboard using a public API and geolocation',
@@ -25,7 +25,8 @@ const SKILL_IDEAS = [
   },
   {
     skill: 'React',
-    color: 'bg-blue-100 text-blue-800 ring-blue-200',
+    color: 'ring-blue-300/50',
+    badge: 'bg-blue-100 text-blue-800',
     ideas: [
       'Headless UI component library (Tabs, Modal, Dropdown)',
       'Real-time chat using WebSockets and optimistic UI',
@@ -46,7 +47,8 @@ const SKILL_IDEAS = [
   },
   {
     skill: 'Python',
-    color: 'bg-emerald-100 text-emerald-800 ring-emerald-200',
+    color: 'ring-emerald-300/50',
+    badge: 'bg-emerald-100 text-emerald-800',
     ideas: [
       'CLI for managing tasks with SQLite and rich TUI',
       'Web scraper with rotating proxies and CSV export',
@@ -67,7 +69,8 @@ const SKILL_IDEAS = [
   },
   {
     skill: 'Node.js',
-    color: 'bg-lime-100 text-lime-800 ring-lime-200',
+    color: 'ring-lime-300/50',
+    badge: 'bg-lime-100 text-lime-800',
     ideas: [
       'REST API boilerplate with auth, rate limits, and tests',
       'Real-time notifications service with Socket.IO',
@@ -88,7 +91,8 @@ const SKILL_IDEAS = [
   },
   {
     skill: 'UI/UX & Frontend',
-    color: 'bg-pink-100 text-pink-800 ring-pink-200',
+    color: 'ring-pink-300/50',
+    badge: 'bg-pink-100 text-pink-800',
     ideas: [
       'Landing page A/B testing framework',
       'Design tokens system with theme switcher',
@@ -109,7 +113,8 @@ const SKILL_IDEAS = [
   },
   {
     skill: 'Databases',
-    color: 'bg-purple-100 text-purple-800 ring-purple-200',
+    color: 'ring-purple-300/50',
+    badge: 'bg-purple-100 text-purple-800',
     ideas: [
       'SQL schema designer with ERD auto-layout',
       'Query performance visualizer with EXPLAIN',
@@ -130,107 +135,77 @@ const SKILL_IDEAS = [
   },
 ];
 
-function usePreferredSkill(defaultSkill) {
-  const [skill, setSkill] = useState(() => {
-    const saved = typeof window !== 'undefined' ? localStorage.getItem('craftify.skill') : null;
-    return saved || defaultSkill;
-  });
-  useEffect(() => {
-    try {
-      localStorage.setItem('craftify.skill', skill);
-    } catch {}
-  }, [skill]);
-  return [skill, setSkill];
-}
-
-function Flashcard({ text }) {
-  const [flipped, setFlipped] = useState(false);
-
-  const toggle = () => setFlipped((v) => !v);
-
-  return (
-    <motion.button
-      type="button"
-      onClick={toggle}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          toggle();
-        }
-      }}
-      className="relative h-36 w-full rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
-      initial={{ opacity: 0, y: 12, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
-      aria-pressed={flipped}
-    >
-      <div className="absolute inset-0 [transform-style:preserve-3d] transition-transform duration-500" style={{ transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
-        {/* Front */}
-        <div className="absolute inset-0 backface-hidden rounded-xl border border-slate-200 bg-white shadow-sm p-4 flex items-center justify-center text-center">
-          <span className="text-slate-800 font-medium line-clamp-3">{text}</span>
-        </div>
-        {/* Back */}
-        <div className="absolute inset-0 rounded-xl border border-slate-200 bg-gradient-to-br from-blue-600 to-emerald-500 text-white p-4 flex items-center justify-center text-center [transform:rotateY(180deg)] backface-hidden">
-          <span className="font-semibold">Add this to your roadmap!</span>
-        </div>
-      </div>
-    </motion.button>
-  );
-}
-
 export default function Skills() {
-  const defaultSkill = SKILL_IDEAS[0].skill;
-  const [active, setActive] = usePreferredSkill(defaultSkill);
+  // Show the first skill expanded only on the initial render
+  const [openIndex, setOpenIndex] = useState(0);
 
-  const activeGroup = useMemo(() => SKILL_IDEAS.find((s) => s.skill === active) || SKILL_IDEAS[0], [active]);
+  const toggle = (idx) => {
+    setOpenIndex((prev) => (prev === idx ? -1 : idx));
+  };
 
   return (
     <section id="skills" className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24">
       <div className="max-w-3xl">
-        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">Skills as Flashcards</h2>
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">Skills</h2>
         <p className="mt-3 text-slate-600">
-          Pick a skill to see its 10–15 project ideas. Tap a card to flip it. Use keyboard Enter/Space to flip as well.
+          Explore curated project ideas grouped by skill. Open a section to see ideas you can build to level up.
         </p>
       </div>
 
-      {/* Skill selector */}
-      <div className="mt-8 flex flex-wrap items-center gap-3">
-        {SKILL_IDEAS.map((s) => (
-          <button
-            key={s.skill}
-            onClick={() => setActive(s.skill)}
-            className={`rounded-full px-4 py-2 text-sm font-medium ring-1 transition-colors ${
-              active === s.skill
-                ? `${s.color} ring-offset-1`
-                : 'bg-white text-slate-700 ring-slate-200 hover:bg-slate-50'
-            }`}
-            aria-pressed={active === s.skill}
+      <div className="mt-8 space-y-4">
+        {SKILL_IDEAS.map((group, idx) => (
+          <div
+            key={group.skill}
+            className={`rounded-xl border border-slate-200 bg-white shadow-sm ${group.color}`}
           >
-            {s.skill}
-          </button>
+            <button
+              type="button"
+              onClick={() => toggle(idx)}
+              aria-expanded={openIndex === idx}
+              className="w-full px-4 sm:px-6 py-4 flex items-center justify-between gap-3"
+            >
+              <div className="flex items-center gap-3 text-left">
+                <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${group.badge} ring-1 ring-inset ring-black/5`}>
+                  {group.skill}
+                </span>
+                <span className="text-slate-800 font-semibold">
+                  {group.ideas.length} project ideas
+                </span>
+              </div>
+              <svg
+                className={`h-5 w-5 text-slate-500 transition-transform ${openIndex === idx ? 'rotate-180' : ''}`}
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 3a1 1 0 01.832.445l5 7a1 1 0 01-1.664 1.11L10 5.882 5.832 11.555A1 1 0 114.168 10.445l5-7A1 1 0 0110 3z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+
+            {openIndex === idx && (
+              <div className="px-4 sm:px-6 pb-5">
+                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {group.ideas.map((idea, i) => (
+                    <li
+                      key={i}
+                      className="rounded-lg border border-slate-200 bg-slate-50/50 p-3 text-slate-700 hover:bg-slate-50"
+                    >
+                      {idea}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         ))}
       </div>
 
-      {/* Animated grid of flashcards */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeGroup.skill}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.25 }}
-          className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-        >
-          {activeGroup.ideas.map((idea, idx) => (
-            <Flashcard key={idx} text={idea} />
-          ))}
-        </motion.div>
-      </AnimatePresence>
-
       <div className="mt-8 text-sm text-slate-500">
-        Pro tip: Shuffle by switching skills, then come back. Your last selected skill is remembered.
+        Tip: Start with smaller ideas and gradually tackle advanced ones. Consistency beats intensity.
       </div>
     </section>
   );
